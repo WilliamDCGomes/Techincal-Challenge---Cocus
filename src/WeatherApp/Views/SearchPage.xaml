@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WeatherApp.Core.ViewModels;assembly=WeatherApp.Core"
+             xmlns:models="clr-namespace:WeatherApp.Core.Models;assembly=WeatherApp.Core"
+             x:Class="WeatherApp.Views.SearchPage"
+             x:Name="ThisPage"
+             x:DataType="vm:SearchViewModel"
+             Shell.NavBarIsVisible="False"
+             SafeAreaEdges="Container">
+
+    <Grid Padding="20,0" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="2" Margin="0,28,0,8">
+            <Label Text="Weather" Style="{StaticResource DisplayTitleLabel}" />
+            <Label Text="Search for a city" Style="{StaticResource CaptionLabel}" />
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1" Style="{StaticResource SearchFieldBorder}">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <Label Grid.Column="0" Text="🔍" FontSize="18" VerticalOptions="Center" />
+                <Entry Grid.Column="1"
+                       Text="{Binding City}"
+                       Placeholder="Search city…"
+                       ReturnType="Search"
+                       ReturnCommand="{Binding SearchCommand}"
+                       VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <Button Grid.Row="2"
+                Text="Search"
+                Command="{Binding SearchCommand}" />
+
+        <Grid Grid.Row="3" Margin="0,8,0,0" VerticalOptions="Start">
+
+            <VerticalStackLayout Spacing="6"
+                                 IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Idle}">
+                <Label Text="Where to?" Style="{StaticResource Title2Label}" />
+                <Label Text="Search any city to see the current conditions and a 5-day forecast."
+                       Style="{StaticResource CaptionLabel}" />
+
+                <Label Text="RECENT"
+                       Style="{StaticResource SectionLabel}"
+                       Margin="0,20,0,4"
+                       IsVisible="{Binding HasRecents}" />
+                <FlexLayout BindableLayout.ItemsSource="{Binding Recents}"
+                            Wrap="Wrap"
+                            IsVisible="{Binding HasRecents}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:GeocodingResult">
+                            <Border Style="{StaticResource ChipBorder}" Margin="0,0,8,8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={x:Reference ThisPage}, Path=ViewModel.OpenRecentCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding Name}" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+            </VerticalStackLayout>
+
+            <ActivityIndicator Margin="0,24,0,0"
+                               HorizontalOptions="Center"
+                               IsRunning="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Loading}"
+                               IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Loading}" />
+
+            <VerticalStackLayout Spacing="6"
+                                 IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Empty}">
+                <Label Text="🔎" FontSize="40" HorizontalOptions="Center" />
+                <Label Text="{Binding City, StringFormat='No match for “{0}”.'}"
+                       Style="{StaticResource Title2Label}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Try a different spelling."
+                       Style="{StaticResource CaptionLabel}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="10"
+                                 IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Error}">
+                <Label Text="☁️" FontSize="40" HorizontalOptions="Center" />
+                <Label Text="{Binding ErrorMessage}"
+                       Style="{StaticResource CaptionLabel}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+                <Button Text="Retry"
+                        Command="{Binding SearchCommand}"
+                        WidthRequest="160"
+                        HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

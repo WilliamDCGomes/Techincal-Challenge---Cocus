@@ -1,0 +1,18 @@
+<Project>
+
+  <ItemGroup>
+    <Compile Remove="**/._*" />
+    <None Remove="**/._*" />
+    <MauiXaml Remove="**/._*" />
+    <MauiCss Remove="**/._*" />
+    <MauiFont Remove="**/._*" />
+    <MauiImage Remove="**/._*" />
+    <MauiSplashScreen Remove="**/._*" />
+    <MauiIcon Remove="**/._*" />
+    <MauiAsset Remove="**/._*" />
+    <AndroidResource Remove="**/._*" />
+    <EmbeddedResource Remove="**/._*" />
+    <Content Remove="**/._*" />
+  </ItemGroup>
+
+</Project>

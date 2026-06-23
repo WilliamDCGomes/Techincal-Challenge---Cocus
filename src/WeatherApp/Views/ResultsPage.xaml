@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WeatherApp.Core.ViewModels;assembly=WeatherApp.Core"
+             xmlns:models="clr-namespace:WeatherApp.Core.Models;assembly=WeatherApp.Core"
+             x:Class="WeatherApp.Views.ResultsPage"
+             x:DataType="vm:ResultsViewModel"
+             Title="{Binding Location.Name}"
+             SafeAreaEdges="Container">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Border Grid.Row="0"
+                IsVisible="{Binding IsOffline}"
+                StrokeThickness="0"
+                Padding="12,8"
+                BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface}, Dark={StaticResource DarkSurface}}">
+            <Label Text="Offline — showing the last saved forecast"
+                   Style="{StaticResource CaptionLabel}"
+                   HorizontalOptions="Center" />
+        </Border>
+
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <Grid Padding="20,8,20,24" RowDefinitions="*,Auto" RowSpacing="16">
+
+                    <Grid Grid.Row="0">
+
+                        <ActivityIndicator Margin="0,48,0,0"
+                                           VerticalOptions="Start"
+                                           HorizontalOptions="Center"
+                                           IsRunning="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Loading}"
+                                           IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Loading}" />
+
+                        <VerticalStackLayout x:Name="SuccessContent"
+                                             Spacing="4"
+                                             Opacity="0"
+                                             IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Success}">
+                            <Label Text="{Binding Location.DisplayName}"
+                                   Style="{StaticResource Title2Label}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Current.Description}"
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Current.WeatherCode, Converter={StaticResource WeatherIcon}}"
+                                   FontSize="96"
+                                   HorizontalOptions="Center" />
+                            <Label x:Name="TemperatureLabel"
+                                   Text="{Binding Current.Temperature, StringFormat='{0:0}°'}"
+                                   Style="{StaticResource HeroTempLabel}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding HighLowText}"
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding FeelsLikeText}"
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalOptions="Center"
+                                   IsVisible="{Binding HasFeelsLike}" />
+
+                            <Label Text="5-DAY FORECAST"
+                                   Style="{StaticResource SectionLabel}"
+                                   Margin="0,28,0,4" />
+
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Daily}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:DailyForecast">
+                                        <Grid Padding="0,12"
+                                              ColumnDefinitions="*,Auto,Auto,Auto"
+                                              ColumnSpacing="14">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Date, StringFormat='{0:ddd}'}"
+                                                   VerticalOptions="Center" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding WeatherCode, Converter={StaticResource WeatherIcon}}"
+                                                   FontSize="20"
+                                                   VerticalOptions="Center" />
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding TemperatureMax, StringFormat='{0:0}°'}"
+                                                   WidthRequest="40"
+                                                   HorizontalTextAlignment="End"
+                                                   VerticalOptions="Center" />
+                                            <Label Grid.Column="3"
+                                                   Text="{Binding TemperatureMin, StringFormat='{0:0}°'}"
+                                                   Style="{StaticResource CaptionLabel}"
+                                                   WidthRequest="40"
+                                                   HorizontalTextAlignment="End"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                            <Label Text="No forecast available."
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalOptions="Center"
+                                   IsVisible="{Binding IsForecastEmpty}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="10"
+                                             Margin="0,48,0,0"
+                                             VerticalOptions="Start"
+                                             IsVisible="{Binding State, Converter={StaticResource EnumToBool}, ConverterParameter=Error}">
+                            <Label Text="☁️" FontSize="40" HorizontalOptions="Center" />
+                            <Label Text="{Binding ErrorMessage}"
+                                   Style="{StaticResource CaptionLabel}"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Button Text="Retry"
+                                    Command="{Binding RetryCommand}"
+                                    WidthRequest="160"
+                                    HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Grid.Row="1"
+                           Text="Weather data by Open-Meteo.com"
+                           Style="{StaticResource SectionLabel}"
+                           HorizontalOptions="Center" />
+                </Grid>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>
