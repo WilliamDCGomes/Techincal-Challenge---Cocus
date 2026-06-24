@@ -214,6 +214,36 @@ public class SearchViewModelTests
     }
 
     [Fact]
+    public async Task EditingCity_AfterNoMatch_ClearsTheStaleResult()
+    {
+        _geocoding.SearchAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((GeocodingResult?)null);
+        var vm = CreateViewModel();
+        vm.City = "Lisbo";
+        await vm.SearchCommand.ExecuteAsync(null);
+        Assert.Equal(ViewState.Empty, vm.State);
+
+        vm.City = "Lisbon";
+
+        Assert.Equal(ViewState.Idle, vm.State);
+    }
+
+    [Fact]
+    public async Task EditingCity_AfterError_ClearsTheStaleResult()
+    {
+        _geocoding.SearchAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("down"));
+        var vm = CreateViewModel();
+        vm.City = "Lisbon";
+        await vm.SearchCommand.ExecuteAsync(null);
+        Assert.Equal(ViewState.Error, vm.State);
+
+        vm.City = "Madrid";
+
+        Assert.Equal(ViewState.Idle, vm.State);
+    }
+
+    [Fact]
     public async Task OpenRecent_NavigatesDirectly_WithoutGeocoding()
     {
         var porto = new GeocodingResult("Porto", 41.15, -8.61, "Portugal", "Porto");

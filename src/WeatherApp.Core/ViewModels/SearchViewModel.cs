@@ -32,6 +32,14 @@ public partial class SearchViewModel : BaseViewModel
     [NotifyCanExecuteChangedFor(nameof(SearchCommand))]
     public partial string City { get; set; }
 
+    partial void OnCityChanged(string value)
+    {
+        if (State is ViewState.Empty or ViewState.Error)
+        {
+            ResetToIdle();
+        }
+    }
+
     public ObservableCollection<GeocodingResult> Recents { get; } = [];
 
     public bool HasRecents => Recents.Count > 0;
