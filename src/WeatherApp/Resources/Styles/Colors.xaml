@@ -24,4 +24,8 @@
     <Color x:Key="LightDisabled">#C8CBD0</Color>
     <Color x:Key="DarkDisabled">#3A3D43</Color>
 
+    <Color x:Key="ThemeTrackLight">#D8E6FF</Color>
+    <Color x:Key="ThemeTrackDark">#2C3340</Color>
+    <Color x:Key="ThemeThumb">#FFFFFF</Color>
+
 </ResourceDictionary>

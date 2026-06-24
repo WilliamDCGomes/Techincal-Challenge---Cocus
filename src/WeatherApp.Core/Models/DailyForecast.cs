@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using WeatherApp.Core.Services;
+
 namespace WeatherApp.Core.Models;
 
 public sealed record DailyForecast(
@@ -5,4 +8,8 @@ public sealed record DailyForecast(
     int WeatherCode,
     string Description,
     double TemperatureMax,
-    double TemperatureMin);
+    double TemperatureMin)
+{
+    [JsonIgnore]
+    public string Icon => WeatherIcons.Glyph(WeatherCode, isDay: true);
+}

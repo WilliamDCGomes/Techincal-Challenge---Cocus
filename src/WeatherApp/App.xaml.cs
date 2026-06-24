@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using WeatherApp.Core.Services;
 
 namespace WeatherApp;
 
 public partial class App : Application
 {
-	public App()
+	public App(IThemeService theme)
 	{
 		InitializeComponent();
 
-		UserAppTheme = AppTheme.Unspecified;
+		theme.Apply();
 	}
 
 	protected override Window CreateWindow(IActivationState? activationState)

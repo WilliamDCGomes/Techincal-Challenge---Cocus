@@ -48,7 +48,7 @@ public partial class ResultsViewModel : BaseViewModel
 
     public IReadOnlyList<DailyForecast> Daily { get; private set; } = [];
 
-    public DailyForecast? Today => Daily.Count > 0 ? Daily[0] : null;
+    public DailyForecast? Today { get; private set; }
 
     public bool IsForecastEmpty => Weather is not null && Daily.Count == 0;
 
@@ -61,8 +61,12 @@ public partial class ResultsViewModel : BaseViewModel
     public string FeelsLikeText =>
         Current is null ? string.Empty : $"Feels like {Current.ApparentTemperature:0}°";
 
-    partial void OnWeatherChanged(WeatherResult? value) =>
-        Daily = value is null ? [] : [.. value.Daily.Take(DisplayedForecastDays)];
+    partial void OnWeatherChanged(WeatherResult? value)
+    {
+        var forecast = value?.Daily ?? [];
+        Today = forecast.Count > 0 ? forecast[0] : null;
+        Daily = forecast.Count > 1 ? [.. forecast.Skip(1).Take(DisplayedForecastDays)] : [];
+    }
 
     public Task LoadAsync(GeocodingResult location, CancellationToken cancellationToken = default)
     {

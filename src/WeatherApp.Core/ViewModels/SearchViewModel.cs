@@ -12,15 +12,18 @@ public partial class SearchViewModel : BaseViewModel
     private readonly IGeocodingService _geocodingService;
     private readonly INavigationService _navigationService;
     private readonly IWeatherCache _cache;
+    private readonly IThemeService _theme;
 
     public SearchViewModel(
         IGeocodingService geocodingService,
         INavigationService navigationService,
-        IWeatherCache cache)
+        IWeatherCache cache,
+        IThemeService theme)
     {
         _geocodingService = geocodingService;
         _navigationService = navigationService;
         _cache = cache;
+        _theme = theme;
         City = string.Empty;
         Recents.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasRecents));
     }
@@ -32,6 +35,10 @@ public partial class SearchViewModel : BaseViewModel
     public ObservableCollection<GeocodingResult> Recents { get; } = [];
 
     public bool HasRecents => Recents.Count > 0;
+
+    public string ThemeGlyph => _theme.IsDark ? "🌙" : "☀️";
+
+    public bool IsDarkTheme => _theme.IsDark;
 
     public Task PrepareAsync()
     {
@@ -56,6 +63,14 @@ public partial class SearchViewModel : BaseViewModel
 
     [RelayCommand]
     private Task OpenRecentAsync(GeocodingResult location) => _navigationService.GoToResultsAsync(location);
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        _theme.Toggle();
+        OnPropertyChanged(nameof(ThemeGlyph));
+        OnPropertyChanged(nameof(IsDarkTheme));
+    }
 
     private Task ExecuteSearchAsync(CancellationToken cancellationToken) =>
         RunGuardedAsync(async token =>

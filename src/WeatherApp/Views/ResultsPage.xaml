@@ -44,7 +44,7 @@
                             <Label Text="{Binding Current.Description}"
                                    Style="{StaticResource CaptionLabel}"
                                    HorizontalOptions="Center" />
-                            <Label Text="{Binding Current.WeatherCode, Converter={StaticResource WeatherIcon}}"
+                            <Label Text="{Binding Current.Icon}"
                                    FontSize="96"
                                    HorizontalOptions="Center" />
                             <Label x:Name="TemperatureLabel"
@@ -59,7 +59,7 @@
                                    HorizontalOptions="Center"
                                    IsVisible="{Binding HasFeelsLike}" />
 
-                            <Label Text="5-DAY FORECAST"
+                            <Label Text="Next 5 days"
                                    Style="{StaticResource SectionLabel}"
                                    Margin="0,28,0,4" />
 
@@ -73,7 +73,7 @@
                                                    Text="{Binding Date, StringFormat='{0:ddd}'}"
                                                    VerticalOptions="Center" />
                                             <Label Grid.Column="1"
-                                                   Text="{Binding WeatherCode, Converter={StaticResource WeatherIcon}}"
+                                                   Text="{Binding Icon}"
                                                    FontSize="20"
                                                    VerticalOptions="Center" />
                                             <Label Grid.Column="2"

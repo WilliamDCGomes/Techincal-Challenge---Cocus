@@ -15,6 +15,7 @@ public class CoreDependencyInjectionTests
         services.AddSingleton(Substitute.For<INavigationService>());
         services.AddSingleton(Substitute.For<IWeatherCache>());
         services.AddSingleton(Substitute.For<IConnectivityService>());
+        services.AddSingleton(Substitute.For<IThemeService>());
         return services.BuildServiceProvider();
     }
 

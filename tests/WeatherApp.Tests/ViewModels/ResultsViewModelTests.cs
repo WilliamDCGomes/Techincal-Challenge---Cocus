@@ -59,6 +59,21 @@ public class ResultsViewModelTests
     }
 
     [Fact]
+    public async Task Load_Forecast_ExcludesToday_AndStartsTomorrow()
+    {
+        _weather.GetForecastAsync(Arg.Any<Coordinate>(), Arg.Any<CancellationToken>())
+            .Returns(SevenDayForecast());
+        var vm = CreateViewModel();
+
+        await vm.LoadAsync(Lisbon);
+
+        var today = new DateOnly(2026, 6, 23);
+        Assert.Equal(today, vm.Today!.Date);
+        Assert.Equal(today.AddDays(1), vm.Daily[0].Date);
+        Assert.DoesNotContain(vm.Daily, day => day.Date == today);
+    }
+
+    [Fact]
     public async Task Load_NetworkError_SetsErrorNetwork_AndClearsBusy()
     {
         _weather.GetForecastAsync(Arg.Any<Coordinate>(), Arg.Any<CancellationToken>())

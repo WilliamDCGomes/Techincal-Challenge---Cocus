@@ -29,6 +29,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(Preferences.Default);
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<IWeatherCache, PreferencesWeatherCache>();
+        builder.Services.AddSingleton<IThemeService, ThemeService>();
 
         builder.Services.AddTransient<SearchPage>();
         builder.Services.AddTransient<ResultsPage>();

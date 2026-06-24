@@ -13,11 +13,12 @@ public class SearchViewModelTests
     private readonly IGeocodingService _geocoding = Substitute.For<IGeocodingService>();
     private readonly INavigationService _navigation = Substitute.For<INavigationService>();
     private readonly IWeatherCache _cache = Substitute.For<IWeatherCache>();
+    private readonly IThemeService _theme = Substitute.For<IThemeService>();
 
     private static readonly GeocodingResult Lisbon =
         new("Lisbon", 38.71667, -9.13333, "Portugal", "Lisbon");
 
-    private SearchViewModel CreateViewModel() => new(_geocoding, _navigation, _cache);
+    private SearchViewModel CreateViewModel() => new(_geocoding, _navigation, _cache, _theme);
 
     [Fact]
     public void SearchCommand_IsDisabled_WhenCityIsBlank()
@@ -187,6 +188,29 @@ public class SearchViewModelTests
 
         Assert.Equal(ViewState.Idle, vm.State);
         Assert.Contains(vm.Recents, r => r.Name == "Lisbon");
+    }
+
+    [Fact]
+    public void ThemeGlyph_ShowsCurrentMode_MoonInDark_SunInLight()
+    {
+        _theme.IsDark.Returns(true);
+        Assert.Equal("🌙", CreateViewModel().ThemeGlyph);
+
+        _theme.IsDark.Returns(false);
+        Assert.Equal("☀️", CreateViewModel().ThemeGlyph);
+    }
+
+    [Fact]
+    public void ToggleTheme_DelegatesToThemeService_AndNotifiesGlyph()
+    {
+        var vm = CreateViewModel();
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        vm.ToggleThemeCommand.Execute(null);
+
+        _theme.Received(1).Toggle();
+        Assert.Contains(nameof(SearchViewModel.ThemeGlyph), changed);
     }
 
     [Fact]

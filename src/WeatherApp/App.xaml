@@ -12,7 +12,6 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:EnumToBoolConverter x:Key="EnumToBool" />
-            <converters:WeatherCodeToIconConverter x:Key="WeatherIcon" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
