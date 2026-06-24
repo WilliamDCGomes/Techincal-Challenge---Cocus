@@ -15,7 +15,7 @@
                 StrokeThickness="0"
                 Padding="12,8"
                 BackgroundColor="{AppThemeBinding Light={StaticResource LightSurface}, Dark={StaticResource DarkSurface}}">
-            <Label Text="Offline — showing the last saved forecast"
+            <Label Text="{Binding OfflineBannerText}"
                    Style="{StaticResource CaptionLabel}"
                    HorizontalOptions="Center" />
         </Border>
@@ -70,7 +70,7 @@
                                               ColumnDefinitions="*,Auto,Auto,Auto"
                                               ColumnSpacing="14">
                                             <Label Grid.Column="0"
-                                                   Text="{Binding Date, StringFormat='{0:ddd}'}"
+                                                   Text="{Binding DayLabel}"
                                                    VerticalOptions="Center" />
                                             <Label Grid.Column="1"
                                                    Text="{Binding Icon}"

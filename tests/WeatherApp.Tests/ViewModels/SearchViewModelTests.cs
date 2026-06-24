@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Linq;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using WeatherApp.Core.Enums;
@@ -277,5 +278,63 @@ public class SearchViewModelTests
 
         Assert.Equal(ViewState.Success, vm.State);
         await _navigation.Received(1).GoToResultsAsync(Lisbon);
+    }
+
+    [Fact]
+    public async Task LoadRecents_Reorder_UpdatesOrderInPlace_PreservingItems()
+    {
+        var london = new GeocodingResult("London", 51.5, -0.12, "United Kingdom", "England");
+        var paris = new GeocodingResult("Paris", 48.85, 2.35, "France", "Île-de-France");
+        var vm = CreateViewModel();
+
+        _cache.GetRecentLocationsAsync(Arg.Any<CancellationToken>()).Returns(new[] { london, paris });
+        await vm.LoadRecentsAsync();
+        Assert.Equal(new[] { "London", "Paris" }, vm.Recents.Select(r => r.Name));
+
+        _cache.GetRecentLocationsAsync(Arg.Any<CancellationToken>()).Returns(new[] { paris, london });
+        await vm.LoadRecentsAsync();
+
+        Assert.Equal(new[] { "Paris", "London" }, vm.Recents.Select(r => r.Name));
+        Assert.Equal(2, vm.Recents.Count);
+    }
+
+    [Fact]
+    public async Task LoadRecents_DropsRemoved_AndInsertsNew()
+    {
+        var london = new GeocodingResult("London", 51.5, -0.12, "United Kingdom", "England");
+        var paris = new GeocodingResult("Paris", 48.85, 2.35, "France", "Île-de-France");
+        var tokyo = new GeocodingResult("Tokyo", 35.68, 139.69, "Japan", "Tokyo");
+        var vm = CreateViewModel();
+
+        _cache.GetRecentLocationsAsync(Arg.Any<CancellationToken>()).Returns(new[] { london, paris });
+        await vm.LoadRecentsAsync();
+
+        _cache.GetRecentLocationsAsync(Arg.Any<CancellationToken>()).Returns(new[] { tokyo, london });
+        await vm.LoadRecentsAsync();
+
+        Assert.Equal(new[] { "Tokyo", "London" }, vm.Recents.Select(r => r.Name));
+    }
+
+    [Fact]
+    public async Task CanEditSearch_IsFalseWhileSearching_AndTrueOtherwise()
+    {
+        var gate = new TaskCompletionSource<GeocodingResult?>();
+        _geocoding.SearchAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(gate.Task);
+        var vm = CreateViewModel();
+        vm.City = "Lisbon";
+
+        Assert.True(vm.CanEditSearch);
+
+        var changed = new List<string?>();
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        var execution = vm.SearchCommand.ExecuteAsync(null);
+        Assert.False(vm.CanEditSearch);
+        Assert.Contains(nameof(SearchViewModel.CanEditSearch), changed);
+
+        gate.SetResult(null);
+        await execution;
+
+        Assert.True(vm.CanEditSearch);
     }
 }

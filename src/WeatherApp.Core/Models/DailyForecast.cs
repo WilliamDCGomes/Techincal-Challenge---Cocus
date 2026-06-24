@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 using WeatherApp.Core.Services;
 
@@ -12,4 +13,7 @@ public sealed record DailyForecast(
 {
     [JsonIgnore]
     public string Icon => WeatherIcons.Glyph(WeatherCode, isDay: true);
+
+    [JsonIgnore]
+    public string DayLabel => Date.ToString("ddd", CultureInfo.InvariantCulture);
 }

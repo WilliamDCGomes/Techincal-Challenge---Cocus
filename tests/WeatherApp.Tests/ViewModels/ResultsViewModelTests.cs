@@ -273,4 +273,45 @@ public class ResultsViewModelTests
         Assert.True(vm.IsOffline);
         await _weather.DidNotReceive().GetForecastAsync(Arg.Any<Coordinate>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Load_Offline_WithoutCache_ShowsSpecificUserMessage()
+    {
+        _cache.GetAsync(Arg.Any<GeocodingResult>(), Arg.Any<CancellationToken>())
+            .Returns((CachedWeather?)null);
+        var vm = CreateViewModel(connected: false);
+
+        await vm.LoadAsync(Lisbon);
+
+        Assert.Equal(ErrorKind.Offline, vm.ErrorKind);
+        Assert.Contains("no saved forecast", vm.ErrorMessage!);
+    }
+
+    [Fact]
+    public async Task Load_Offline_FreshCache_IsNotStale()
+    {
+        _cache.GetAsync(Lisbon, Arg.Any<CancellationToken>())
+            .Returns(new CachedWeather(SevenDayForecast(), DateTimeOffset.UtcNow));
+        var vm = CreateViewModel(connected: false);
+
+        await vm.LoadAsync(Lisbon);
+
+        Assert.True(vm.IsOffline);
+        Assert.False(vm.IsStaleCache);
+        Assert.Equal("Offline — showing the last saved forecast", vm.OfflineBannerText);
+    }
+
+    [Fact]
+    public async Task Load_Offline_ExpiredCache_FlagsStale_AndUpdatesBanner()
+    {
+        _cache.GetAsync(Lisbon, Arg.Any<CancellationToken>())
+            .Returns(new CachedWeather(SevenDayForecast(), DateTimeOffset.UtcNow.AddHours(-2)));
+        var vm = CreateViewModel(connected: false);
+
+        await vm.LoadAsync(Lisbon);
+
+        Assert.True(vm.IsOffline);
+        Assert.True(vm.IsStaleCache);
+        Assert.Equal("Offline — showing an older saved forecast", vm.OfflineBannerText);
+    }
 }

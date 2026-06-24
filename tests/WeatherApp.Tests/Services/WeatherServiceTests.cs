@@ -86,4 +86,22 @@ public class WeatherServiceTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => service.GetForecastAsync(Lisbon, cts.Token));
     }
+
+    [Fact]
+    public async Task GetForecastAsync_MalformedDailyDate_ThrowsInvalidResponse()
+    {
+        const string json =
+            """
+            {
+              "current": { "time": "2026-06-23T12:00", "temperature_2m": 20.0, "weather_code": 0,
+                "apparent_temperature": 20.0, "relative_humidity_2m": 50, "wind_speed_10m": 5.0, "is_day": 1 },
+              "daily": { "time": ["not-a-date"], "weather_code": [0],
+                "temperature_2m_max": [20.0], "temperature_2m_min": [10.0] }
+            }
+            """;
+        var service = CreateService(StubHttpMessageHandler.Json(json));
+
+        var ex = await Assert.ThrowsAsync<WeatherException>(() => service.GetForecastAsync(Lisbon));
+        Assert.Equal(ErrorKind.InvalidResponse, ex.Kind);
+    }
 }

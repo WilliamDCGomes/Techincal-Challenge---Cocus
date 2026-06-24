@@ -18,6 +18,9 @@ public partial class ResultsViewModel : BaseViewModel
     private readonly IWeatherCache _cache;
     private readonly IConnectivityService _connectivity;
 
+    private readonly CancellationTokenSource _lifetimeCts = new();
+    private bool _detached;
+
     public ResultsViewModel(
         IWeatherService weatherService,
         IWeatherCache cache,
@@ -43,6 +46,14 @@ public partial class ResultsViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial bool IsOffline { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(OfflineBannerText))]
+    public partial bool IsStaleCache { get; set; }
+
+    public string OfflineBannerText => IsStaleCache
+        ? "Offline — showing an older saved forecast"
+        : "Offline — showing the last saved forecast";
 
     public CurrentWeather? Current => Weather?.Current;
 
@@ -74,7 +85,18 @@ public partial class ResultsViewModel : BaseViewModel
         return LoadForecastAsync(showLoading: true, cancellationToken);
     }
 
-    public void Detach() => _connectivity.ConnectivityChanged -= OnConnectivityChanged;
+    public void Detach()
+    {
+        if (_detached)
+        {
+            return;
+        }
+
+        _detached = true;
+        _connectivity.ConnectivityChanged -= OnConnectivityChanged;
+        _lifetimeCts.Cancel();
+        _lifetimeCts.Dispose();
+    }
 
     [RelayCommand]
     private Task RetryAsync(CancellationToken cancellationToken) =>
@@ -108,26 +130,42 @@ public partial class ResultsViewModel : BaseViewModel
             var cached = await _cache.GetAsync(location, cancellationToken);
             if (cached is null)
             {
-                throw new WeatherException(ErrorKind.Offline, "You're offline and there's no saved forecast for this city yet.");
+                throw new WeatherException(ErrorKind.Offline, "Offline and no cached forecast is available for this location.")
+                {
+                    UserMessage = "You're offline and there's no saved forecast for this city yet.",
+                };
             }
 
             Weather = cached.Weather;
             IsOffline = true;
+            IsStaleCache = cached.IsExpired(DateTimeOffset.UtcNow);
             return ViewState.Success;
         }
 
         var weather = await _weatherService.GetForecastAsync(location.Coordinate, cancellationToken);
         Weather = weather;
         IsOffline = false;
+        IsStaleCache = false;
         await _cache.SetAsync(location, weather, cancellationToken);
         return ViewState.Success;
     }
 
     private async void OnConnectivityChanged(object? sender, EventArgs e)
     {
-        if (_connectivity.IsConnected && IsOffline && Location is not null)
+        try
         {
-            await LoadForecastAsync(showLoading: false, CancellationToken.None);
+            if (_detached || _lifetimeCts.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (_connectivity.IsConnected && IsOffline && Location is not null)
+            {
+                await LoadForecastAsync(showLoading: false, _lifetimeCts.Token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
         }
     }
 }

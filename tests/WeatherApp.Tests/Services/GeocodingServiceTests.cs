@@ -91,4 +91,14 @@ public class GeocodingServiceTests
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => service.SearchAsync("Lisbon", cts.Token));
     }
+
+    [Fact]
+    public async Task SearchAsync_NotFound_ReturnsNull_NotNetworkError()
+    {
+        var service = CreateService(StubHttpMessageHandler.Status(HttpStatusCode.NotFound));
+
+        var result = await service.SearchAsync("Lisbon");
+
+        Assert.Null(result);
+    }
 }

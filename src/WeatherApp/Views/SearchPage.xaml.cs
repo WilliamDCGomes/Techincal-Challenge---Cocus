@@ -33,7 +33,7 @@ public partial class SearchPage : ContentPage
         var target = ViewModel.IsDarkTheme ? ThemeThumbTravel : 0d;
         if (animated)
         {
-            _ = ThemeThumb.TranslateTo(target, 0, 180, Easing.CubicInOut);
+            _ = ThemeThumb.TranslateToAsync(target, 0, 180, Easing.CubicInOut);
         }
         else
         {

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WeatherApp.Core.Enums;
@@ -57,14 +58,37 @@ public partial class SearchViewModel : BaseViewModel
     public async Task LoadRecentsAsync()
     {
         var recents = await _cache.GetRecentLocationsAsync();
-        Recents.Clear();
-        foreach (var location in recents)
+        SyncRecents(recents);
+    }
+
+    private void SyncRecents(IReadOnlyList<GeocodingResult> fresh)
+    {
+        for (var i = Recents.Count - 1; i >= 0; i--)
         {
-            Recents.Add(location);
+            if (!fresh.Contains(Recents[i]))
+            {
+                Recents.RemoveAt(i);
+            }
+        }
+
+        for (var i = 0; i < fresh.Count; i++)
+        {
+            var location = fresh[i];
+            var current = Recents.IndexOf(location);
+            if (current < 0)
+            {
+                Recents.Insert(i, location);
+            }
+            else if (current != i)
+            {
+                Recents.Move(current, i);
+            }
         }
     }
 
     private bool CanSearch => !IsBusy && !string.IsNullOrWhiteSpace(City);
+
+    public bool CanEditSearch => !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanSearch))]
     private Task SearchAsync(CancellationToken cancellationToken) => ExecuteSearchAsync(cancellationToken);
@@ -93,5 +117,9 @@ public partial class SearchViewModel : BaseViewModel
             return ViewState.Success;
         }, cancellationToken);
 
-    protected override void OnBusyChanged() => SearchCommand.NotifyCanExecuteChanged();
+    protected override void OnBusyChanged()
+    {
+        SearchCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanEditSearch));
+    }
 }

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using WeatherApp.Core.Dtos;
@@ -31,6 +32,12 @@ public sealed class GeocodingService : IGeocodingService
         var requestUri = BuildSearchUri(city.Trim());
 
         using var response = await _httpClient.GetAsync(requestUri, cancellationToken).ConfigureAwait(false);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
         response.EnsureSuccessStatusCode();
 
         GeocodingResponseDto? dto;

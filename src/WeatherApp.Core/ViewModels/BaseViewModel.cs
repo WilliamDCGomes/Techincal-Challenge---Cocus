@@ -49,7 +49,7 @@ public abstract partial class BaseViewModel : ObservableObject
         }
         catch (WeatherException ex)
         {
-            SetError(ex.Kind);
+            SetError(ex.Kind, ex.UserMessage);
         }
         catch (HttpRequestException)
         {
@@ -65,10 +65,10 @@ public abstract partial class BaseViewModel : ObservableObject
         }
     }
 
-    protected void SetError(ErrorKind kind)
+    protected void SetError(ErrorKind kind, string? message = null)
     {
         ErrorKind = kind;
-        ErrorMessage = ErrorMessages.For(kind);
+        ErrorMessage = message ?? ErrorMessages.For(kind);
         State = ViewState.Error;
     }
 

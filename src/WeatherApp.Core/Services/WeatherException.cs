@@ -11,4 +11,6 @@ public sealed class WeatherException : Exception
     }
 
     public ErrorKind Kind { get; }
+
+    public string? UserMessage { get; init; }
 }

@@ -33,8 +33,8 @@ internal static class WeatherMapper
         }
 
         var currentWeather = new CurrentWeather(
-            Temperature: current.Temperature,
-            ApparentTemperature: current.ApparentTemperature,
+            Temperature: Finite(current.Temperature, "temperature_2m"),
+            ApparentTemperature: Finite(current.ApparentTemperature, "apparent_temperature"),
             WeatherCode: current.WeatherCode,
             Description: WeatherCodeDescriptions.Describe(current.WeatherCode),
             RelativeHumidity: current.RelativeHumidity,
@@ -58,15 +58,25 @@ internal static class WeatherMapper
         var days = new List<DailyForecast>(count);
         for (var i = 0; i < count; i++)
         {
-            var date = DateOnly.ParseExact(times[i], DailyDateFormat, CultureInfo.InvariantCulture);
+            if (times[i] is not { } timeText
+                || !DateOnly.TryParseExact(timeText, DailyDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                throw new InvalidOperationException($"Forecast daily date at index {i} was missing or malformed.");
+            }
+
             days.Add(new DailyForecast(
                 Date: date,
                 WeatherCode: codes[i],
                 Description: WeatherCodeDescriptions.Describe(codes[i]),
-                TemperatureMax: maxima[i],
-                TemperatureMin: minima[i]));
+                TemperatureMax: Finite(maxima[i], "temperature_2m_max"),
+                TemperatureMin: Finite(minima[i], "temperature_2m_min")));
         }
 
         return days;
     }
+
+    private static double Finite(double value, string field) =>
+        double.IsFinite(value)
+            ? value
+            : throw new InvalidOperationException($"Forecast field '{field}' was not a finite number.");
 }
