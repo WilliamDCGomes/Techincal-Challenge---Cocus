@@ -54,6 +54,7 @@ public partial class SearchViewModel : BaseViewModel
 
     public Task PrepareAsync()
     {
+        City = string.Empty;
         ResetToIdle();
         return LoadRecentsAsync();
     }

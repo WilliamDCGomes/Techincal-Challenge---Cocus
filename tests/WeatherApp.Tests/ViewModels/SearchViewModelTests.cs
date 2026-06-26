@@ -194,6 +194,18 @@ public class SearchViewModelTests
     }
 
     [Fact]
+    public async Task PrepareAsync_ClearsCity()
+    {
+        _cache.GetRecentLocationsAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<GeocodingResult>());
+        var vm = CreateViewModel();
+        vm.City = "Lisbon";
+
+        await vm.PrepareAsync();
+
+        Assert.Equal(string.Empty, vm.City);
+    }
+
+    [Fact]
     public void ThemeGlyph_ShowsCurrentMode_MoonInDark_SunInLight()
     {
         _theme.IsDark.Returns(true);
