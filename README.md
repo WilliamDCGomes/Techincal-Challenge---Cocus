@@ -16,6 +16,32 @@ This is my submission for the .NET MAUI take-home challenge.
 - **Android:** a JDK (17 or 21) and the Android SDK, plus an emulator or a device
 - **iOS:** a Mac with Xcode and an iOS Simulator
 
+### Versions I'm using
+
+The project pins the `net10.0` target frameworks but **not** a specific MAUI package version — MAUI
+resolves to whatever workload is installed. So a machine with a different SDK/workload pulls a
+different MAUI, which is the usual cause of "runs here, version error there". To reproduce this build,
+match what I'm running it on:
+
+| Tool | Version here | What to use elsewhere |
+|------|--------------|-----------------------|
+| OS | macOS 26.5.1 (Apple Silicon / arm64) | Windows 10/11 for Android; iOS needs a Mac |
+| .NET SDK | 10.0.100 | .NET 10 — the `net10.0` TFMs won't restore on .NET 8/9 |
+| Workload set | 10.0.109.1 | `dotnet workload install maui` from the same SDK gives the same set |
+| MAUI workload | 10.0.20 | comes with the workload set above |
+| Xcode (iOS only) | 26.5 (17F42) | a matching Xcode 26.x — iOS builds fail without it |
+| JDK (Android) | OpenJDK 21.0.11 | JDK 17 or 21 |
+| Android SDK | platform 36, build-tools 36.x | API 35+ / build-tools 35+ |
+
+App minimums: **iOS 15.0**, **Android API 21**.
+
+Check yours with `dotnet --version`, `dotnet workload list`, `xcodebuild -version`, `java -version`.
+
+> **Windows:** you can build and run the **Android** head, but **not iOS** — that needs a Mac
+> (locally or paired over the network). Install the .NET 10 SDK, run `dotnet workload install maui`,
+> a JDK (17/21) and the Android SDK, then
+> `dotnet build src/WeatherApp/WeatherApp.csproj -f net10.0-android -t:Run`.
+
 ## Running it
 
 Restore once:
