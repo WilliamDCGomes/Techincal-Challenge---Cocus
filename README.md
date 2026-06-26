@@ -110,9 +110,10 @@ not an error.
   justify it. Recents store the resolved coordinates, so tapping a recent reopens it without
   geocoding again — which is also what makes recents work offline.
 - **Offline:** with no connection it serves the last cached forecast for that city behind a small
-  banner, and refreshes automatically when the connection comes back. Failures while online are
-  surfaced, not hidden behind stale cache. (Realistically the product is online-only; offline was one
-  of the optional differentiators, so I added it.)
+  banner that notes whether the saved copy is recent or older (a 15-minute freshness window), and
+  refreshes automatically when the connection comes back. Failures while online are surfaced, not
+  hidden behind stale cache. (Realistically the product is online-only; offline was one of the
+  optional differentiators, so I added it.)
 - **5-day forecast:** the forecast endpoint is queried for 7 days and the UI shows 5 — simplest way to
   satisfy both the suggested 7-day endpoint and the 5-day requirement.
 - **Recents chips:** the wrapping row of recent cities uses a small custom `WrapLayout` instead of
@@ -149,8 +150,9 @@ The test project is plain `net10.0` — no emulator, no real network, all green.
 
 ## Known limitations / what I'd do next
 
-- Offline serves whatever is cached regardless of age. Fine for availability, but I'd add a
-  "last updated" / staleness indicator.
+- When offline the app serves the last cached forecast even if it's stale — availability over
+  freshness — and the banner flags whether that copy is recent or older (a 15-minute window). What
+  it doesn't show yet is an exact "last updated HH:MM" timestamp, which would be the natural next step.
 - No city disambiguation: if several cities share a name it takes the top geocoding match. A
   "did you mean…" list would be the obvious next step.
 - All UI text is English and there's no localization layer (resx); a real app would localize.
