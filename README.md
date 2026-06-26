@@ -18,9 +18,7 @@ This is my submission for the .NET MAUI take-home challenge.
 
 ### Versions I'm using
 
-The project pins the `net10.0` target frameworks but **not** a specific MAUI package version — MAUI
-resolves to whatever workload is installed. So a machine with a different SDK/workload pulls a
-different MAUI, which is the usual cause of "runs here, version error there". To reproduce this build,
+The project pins the `net10.0` target frameworks. To reproduce this build,
 match what I'm running it on:
 
 | Tool | Version here | What to use elsewhere |
