@@ -178,9 +178,9 @@ The test project is plain `net10.0` — no emulator, no real network, all green.
 
 ## Known limitations / what I'd do next
 
-- When offline the app serves the last cached forecast even if it's stale — availability over
-  freshness — and the banner flags whether that copy is recent or older (a 15-minute window). What
+- When offline the app serves the last cached forecast even if it's stale, availability over
+  freshness, and the banner flags whether that copy is recent or older (a 15-minute window). What
   it doesn't show yet is an exact "last updated HH:MM" timestamp, which would be the natural next step.
 - No city disambiguation: if several cities share a name it takes the top geocoding match. A
   "did you mean…" list would be the obvious next step.
-- All UI text is English and there's no localization layer (resx); a real app would localize.
+- All UI text is English and there's no localization layer, a real app would localize.
