@@ -11,6 +11,4 @@ public sealed class ShellNavigationService : INavigationService
         {
             [ResultsViewModel.GeoQueryKey] = location,
         });
-
-    public Task GoBackAsync() => Shell.Current.GoToAsync("..");
 }

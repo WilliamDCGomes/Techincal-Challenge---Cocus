@@ -10,7 +10,5 @@ public enum ErrorKind
 
     InvalidResponse,
 
-    CityNotFound,
-
     Unknown,
 }

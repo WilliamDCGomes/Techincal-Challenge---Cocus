@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using WeatherApp.Core.Enums;
@@ -19,7 +20,7 @@ public class ResultsViewModelTests
     private ResultsViewModel CreateViewModel(bool connected = true)
     {
         _connectivity.IsConnected.Returns(connected);
-        return new ResultsViewModel(_weather, _cache, _connectivity);
+        return new ResultsViewModel(_weather, _cache, _connectivity, NullLogger<ResultsViewModel>.Instance);
     }
 
     private static WeatherResult SevenDayForecast()

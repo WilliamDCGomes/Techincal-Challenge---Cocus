@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using WeatherApp.Core.Enums;
 using WeatherApp.Core.Models;
 using WeatherApp.Core.Services;
@@ -19,7 +20,9 @@ public partial class SearchViewModel : BaseViewModel
         IGeocodingService geocodingService,
         INavigationService navigationService,
         IWeatherCache cache,
-        IThemeService theme)
+        IThemeService theme,
+        ILogger<SearchViewModel> logger)
+        : base(logger)
     {
         _geocodingService = geocodingService;
         _navigationService = navigationService;

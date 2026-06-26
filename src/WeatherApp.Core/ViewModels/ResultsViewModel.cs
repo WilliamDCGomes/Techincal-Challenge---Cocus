@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using WeatherApp.Core.Enums;
 using WeatherApp.Core.Models;
 using WeatherApp.Core.Services;
@@ -24,7 +25,9 @@ public partial class ResultsViewModel : BaseViewModel
     public ResultsViewModel(
         IWeatherService weatherService,
         IWeatherCache cache,
-        IConnectivityService connectivity)
+        IConnectivityService connectivity,
+        ILogger<ResultsViewModel> logger)
+        : base(logger)
     {
         _weatherService = weatherService;
         _cache = cache;
@@ -79,10 +82,10 @@ public partial class ResultsViewModel : BaseViewModel
         Daily = forecast.Count > 1 ? [.. forecast.Skip(1).Take(DisplayedForecastDays)] : [];
     }
 
-    public Task LoadAsync(GeocodingResult location, CancellationToken cancellationToken = default)
+    public Task LoadAsync(GeocodingResult location)
     {
         Location = location;
-        return LoadForecastAsync(showLoading: true, cancellationToken);
+        return LoadForecastAsync(showLoading: true, _lifetimeCts.Token);
     }
 
     public void Detach()

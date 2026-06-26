@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using WeatherApp.Core.Enums;
@@ -19,7 +20,8 @@ public class SearchViewModelTests
     private static readonly GeocodingResult Lisbon =
         new("Lisbon", 38.71667, -9.13333, "Portugal", "Lisbon");
 
-    private SearchViewModel CreateViewModel() => new(_geocoding, _navigation, _cache, _theme);
+    private SearchViewModel CreateViewModel() =>
+        new(_geocoding, _navigation, _cache, _theme, NullLogger<SearchViewModel>.Instance);
 
     [Fact]
     public void SearchCommand_IsDisabled_WhenCityIsBlank()

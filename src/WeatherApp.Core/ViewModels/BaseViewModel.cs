@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.Logging;
 using WeatherApp.Core.Enums;
 using WeatherApp.Core.Services;
 
@@ -6,6 +7,10 @@ namespace WeatherApp.Core.ViewModels;
 
 public abstract partial class BaseViewModel : ObservableObject
 {
+    private readonly ILogger _logger;
+
+    protected BaseViewModel(ILogger logger) => _logger = logger;
+
     [ObservableProperty]
     public partial ViewState State { get; set; }
 
@@ -55,8 +60,9 @@ public abstract partial class BaseViewModel : ObservableObject
         {
             SetError(Enums.ErrorKind.Network);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Unhandled error in {ViewModel}.", GetType().Name);
             SetError(Enums.ErrorKind.Unknown);
         }
         finally
