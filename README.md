@@ -5,6 +5,10 @@ conditions plus the next few days, using the free [Open-Meteo](https://open-mete
 
 This is my submission for the .NET MAUI take-home challenge.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="WeatherApp running on the iOS simulator" width="280" />
+</p>
+
 ## Requirements
 
 - .NET 10 SDK
